@@ -1,0 +1,255 @@
+/* ----------------- GLOBAL ----------------- */
+body {
+    margin: 0;
+    min-height: 100vh;
+    background: #f4f6f8; /* soft light gray */
+    font-family: "Segoe UI", Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+/* ----------------- BANNER ----------------- */
+.banner {
+    width: 100%;
+    padding: 60px 20px;
+    text-align: center;
+    color: #ffffff;
+    background: linear-gradient(135deg, #667eea, #764ba2); /* simple gradient */
+    margin-bottom: 50px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+}
+
+
+.banner h1 {
+    font-size: 40px;
+    font-weight: 800;
+    margin-bottom: 10px;
+}
+
+.banner p {
+    font-size: 18px;
+    opacity: 0.95;
+}
+
+/* ----------------- FORM WRAPPER ----------------- */
+#formPage {
+    width: 100%;
+    max-width: 900px;
+    padding: 0 15px 80px;
+}
+
+/* ----------------- FORM CARD ----------------- */
+.form-box {
+    margin: 0 auto;
+    padding: 45px;
+    background: linear-gradient(135deg, #9eeaf1, #67d5e6); /* gradient cyan shades */
+    border-radius: 18px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); /* subtle shadow */
+    color: #1e1e1e;
+    border: 2px solid #b6afff;
+    transition: all 0.4s ease;
+}
+
+
+
+/* Hover effect */
+.form-box:hover {
+    transform: translateY(-3px);
+    box-shadow: 20px 20px 45px rgba(0,0,0,0.15);
+}
+
+/* ----------------- STEPS ----------------- */
+.step {
+    display: none;
+    animation: fadeIn 0.5s ease forwards;
+}
+.step.active {
+    display: block;
+}
+.step:first-child .prev-btn {
+    display: none;
+}
+
+/* ----------------- TITLES ----------------- */
+#stepTitle {
+    font-weight: 800;
+    font-size: 28px;
+    text-align: center;
+    margin-bottom: 25px;
+    color: #2c3e50; /* dark blue accent */
+}
+
+h5 {
+    color: #34495e; /* subtle dark gray-blue */
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+}
+
+/* ----------------- PROGRESS ----------------- */
+.progress {
+    height: 12px;
+    background: #e0e0e0;
+    border-radius: 50px;
+    margin-bottom: 35px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    background: linear-gradient(
+        90deg,
+        #4a69bd,
+        #6a89cc
+    );
+    transition: width 0.5s ease-in-out;
+}
+
+/* ----------------- LABELS ----------------- */
+.form-label {
+    font-weight: 600;
+    color: #2c3e50; /* dark blue-gray */
+    margin-bottom: 6px;
+}
+
+/* ----------------- INPUTS & SELECT ----------------- */
+.form-control,
+.form-select,
+textarea {
+    background-color: #f7f9fc; /* very light blue-gray */
+    color: #1e1e1e;
+    border: 1px solid #85bcff;
+    border-radius: 12px;
+    padding: 0.5rem 1rem;
+    font-size: 15px;
+    transition: all 0.3s ease;
+}
+
+.form-control::placeholder,
+textarea::placeholder {
+    color: #667171; /* muted gray */
+}
+
+.form-control:focus,
+.form-select:focus,
+textarea:focus {
+    border-color: #4a69bd; /* subtle blue accent */
+    box-shadow: 0 0 8px rgba(74,105,189,0.25); /* subtle glow */
+    outline: none;
+}
+
+/* ----------------- SELECT OPTIONS ----------------- */
+.form-select {
+    appearance: none;
+    cursor: pointer;
+}
+
+.form-select option {
+    background-color: #ffffff !important;
+    color: #1e1e1e !important;
+    font-weight: 500;
+}
+
+.form-select option:checked {
+    background-color: #dbe9fb !important; /* light blue highlight */
+    color: #1e1e1e !important;
+}
+
+/* ----------------- INVALID ----------------- */
+.is-invalid {
+    border-color: #e74c3c !important;
+    background-color: rgba(231, 76, 60, 0.15);
+}
+
+/* ----------------- BUTTONS ----------------- */
+.btn {
+    border-radius: 12px;
+    padding: 12px 28px;
+    font-weight: 700;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #4a69bd, #6a89cc);
+    border: none;
+    color: #fff;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(74,105,189,0.35);
+}
+
+.btn-secondary {
+    background: #95a5a6; /* muted gray */
+    color: #fff;
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #27ae60, #2ecc71);
+    color: #fff;
+}
+
+/* ----------------- RADIO & CHECKBOX ----------------- */
+.form-check-input {
+    accent-color: #4a69bd; /* subtle colored checkboxes */
+    width: 20px;
+    height: 20px;
+}
+
+/* ----------------- RESPONSIVE ----------------- */
+@media (max-width: 576px) {
+    .form-box {
+        padding: 30px 20px;
+    }
+    .banner h1 {
+        font-size: 32px;
+    }
+}
+
+/* ----------------- ANIMATION ----------------- */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ----------------- LOADER ----------------- */
+#loaderOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(8px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease;
+}
+
+#loaderOverlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.loader {
+    width: 60px;
+    height: 60px;
+    border: 5px solid rgba(255,255,255,0.25);
+    border-top-color: #4a69bd; /* loader matches primary color */
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 15px;
+}
+
+#loaderOverlay p {
+    color: #fff;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
