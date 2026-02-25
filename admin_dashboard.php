@@ -8,23 +8,41 @@ if (!isset($_SESSION['admin'])) {
     exit;
 }
 
-/* ---------- APPROVE / REJECT ACTION ---------- */
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['id'])) {
-    $id = (int)$_POST['id'];
-    $status = $_POST['action'];
+/* ---------- APPROVE / REJECT / PENDING ACTION ---------- */
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    if ($status === 'Approved' || $status === 'Rejected') {
-        $stmt = $conn->prepare("UPDATE job_applications SET status=? WHERE id=?");
-        $stmt->bind_param("si", $status, $id);
+    // Status update
+    if (isset($_POST['action'], $_POST['id'])) {
+        $id = (int)$_POST['id'];
+        $status = $_POST['action'];
+
+        if (in_array($status, ['Approved','Rejected','Pending'])) {
+            $stmt = $conn->prepare("UPDATE job_applications 
+                SET status=?, updated_by_staff_id=NULL, updated_by_staff_name='Admin', updated_at=NOW()
+                WHERE id=?");
+            $stmt->bind_param("si", $status, $id);
+            $stmt->execute();
+            $stmt->close();
+        }
+    }
+
+    // Delete candidate
+    if (isset($_POST['delete_id'])) {
+        $del_id = (int)$_POST['delete_id'];
+        $stmt = $conn->prepare("DELETE FROM job_applications WHERE id=?");
+        $stmt->bind_param("i", $del_id);
         $stmt->execute();
+        $stmt->close();
+        header("Location: admin_dashboard.php");
+        exit;
     }
 }
 
 /* ---------- DASHBOARD DATA ---------- */
-$total = $conn->query("SELECT COUNT(*) c FROM job_applications")->fetch_assoc()['c'];
+$total    = $conn->query("SELECT COUNT(*) c FROM job_applications")->fetch_assoc()['c'];
 $approved = $conn->query("SELECT COUNT(*) c FROM job_applications WHERE status='Approved'")->fetch_assoc()['c'];
 $rejected = $conn->query("SELECT COUNT(*) c FROM job_applications WHERE status='Rejected'")->fetch_assoc()['c'];
-$pending = $conn->query("SELECT COUNT(*) c FROM job_applications WHERE status='Pending'")->fetch_assoc()['c'];
+$pending  = $conn->query("SELECT COUNT(*) c FROM job_applications WHERE status='Pending'")->fetch_assoc()['c'];
 
 $result = $conn->query("SELECT * FROM job_applications ORDER BY id DESC");
 ?>
@@ -34,248 +52,306 @@ $result = $conn->query("SELECT * FROM job_applications ORDER BY id DESC");
 <head>
 <meta charset="UTF-8">
 <title>Admin Dashboard</title>
-
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
 <style>
-/* ----------------- GLOBAL ----------------- */
-body {
-    margin: 0;
-    min-height: 100vh;
-    font-family: "Segoe UI", Arial, sans-serif;
-    background: #f4f7fb; /* very light blue-gray */
-    color: #1e293b; /* dark slate text */
+/* ====== GLOBAL THEME ====== */
+body{
+    margin:0;
+    min-height:100vh;
+    font-family: "Poppins", Arial, sans-serif;
+    background: linear-gradient(135deg, #b0c4ff, #071018);
+    color:#111827;
 }
 
-/* ----------------- NAVBAR ----------------- */
-.navbar {
-    background: linear-gradient(135deg, #1e40af, #3b82f6); /* deep-to-light blue */
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    color: #fff;
-    font-weight: 600;
+/* ====== NAVBAR ====== */
+.navbar{
+    background:#ffffff;
+    border-bottom:1px solid #e5e7eb;
+    box-shadow:0 6px 20px rgba(0,0,0,.06);
+}
+.navbar-brand{
+    font-weight:800;
+    letter-spacing:.3px;
+    color:#2563eb !important;
+}
+.nav-btn{
+    border-radius:12px;
+    font-weight:600;
+    padding:8px 14px;
 }
 
-/* ----------------- STATS CARDS ----------------- */
-.stat {
-    padding: 25px;
-    border-radius: 18px;
-    color: #fff;
-    font-weight: 600;
-    font-size: 18px;
-    text-align: center;
-    transition: all 0.3s ease;
-    cursor: default;
+/* ====== CARDS ====== */
+.stat{
+    padding:18px;
+    border-radius:18px;
+    font-weight:700;
+    font-size:16px;
+    text-align:left;
+    box-shadow:0 8px 25px rgba(0,0,0,.06);
+    transition:.25s;
+    background:#fff;
+    border:1px solid #e5e7eb;
+}
+.stat:hover{ transform:translateY(-5px); }
+.stat small{ font-weight:600; color:#6b7280; display:block; }
+.stat h3{ margin:0; font-weight:900; }
+
+.total{ border-left:6px solid #2563eb; }
+.approved{ border-left:6px solid #16a34a; }
+.rejected{ border-left:6px solid #dc2626; }
+.pending{ border-left:6px solid #f59e0b; }
+
+/* ====== SEARCH ====== */
+#search{
+    border-radius:14px;
+    padding:12px 14px;
+    border:1px solid #e5e7eb80;
+    box-shadow:0 5px 15px rgba(0,0,0,.05);
+}
+#search:focus{
+    outline:none;
+    border-color:#2563eb;
+    box-shadow:0 0 0 4px rgba(37,99,235,.15);
 }
 
-.stat:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+/* ====== TABLE ====== */
+.table-wrap{
+    background:#fff;
+    border-radius:18px;
+    padding:12px;
+    border:1px solid #e5e7eb;
+    box-shadow:0 10px 30px rgba(0,0,0,.06);
+}
+.table{
+    margin:0;
+}
+.table thead th{
+    background:#f9fafb;
+    color:#111827;
+    border-bottom:1px solid #80a7f7 !important;
+    font-weight:800;
+    padding:14px 10px;
+}
+.table tbody td{
+    padding:14px 10px;
+    border-bottom:1px solid #f1f5f9;
+    vertical-align:middle;
+}
+.table tbody tr:hover{
+    background:#f3f6ff;
+    transition:.2s;
 }
 
-.total {
-    background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+/* ====== BADGES ====== */
+.badge{
+    border-radius:999px;
+    padding:7px 12px;
+    font-weight:700;
+    font-size:12px;
 }
-.approved {
-    background: linear-gradient(135deg, #0ea5e9, #3b82f6);
+.badge.bg-success{ background:#16a34a !important; }
+.badge.bg-danger{ background:#dc2626 !important; }
+.badge.bg-warning{ background:#f59e0b !important; color:#111827; }
+
+/* ====== BUTTONS ====== */
+.btn-sm{
+    border-radius:12px;
+    font-weight:700;
+    padding:7px 12px;
 }
-.rejected {
-    background: linear-gradient(135deg, #ef4444, #dc2626);
+.btn-delete{
+    background:#ef4444;
+    border:none;
+    color:#fff;
 }
-.pending {
-    background: linear-gradient(135deg, #f59e0b, #fbbf24);
+.btn-delete:hover{
+    background:#dc2626;
 }
 
-/* ----------------- SEARCH INPUT ----------------- */
-#search {
-    border-radius: 12px;
-    border: 1px solid #cfd8e3;
-    padding: 0.5rem 1rem;
-    font-size: 15px;
-    background-color: #fff;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-    transition: all 0.3s ease;
+/* ====== DROPDOWN ====== */
+.form-select{
+    border-radius:12px;
+    font-weight:600;
+    border:1px solid #e5e7eb;
+}
+.form-select:focus{
+    border-color:#2563eb;
+    box-shadow:0 0 0 4px rgba(37,99,235,.15);
 }
 
-#search:focus {
-    outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 8px rgba(59,130,246,0.2);
+/* ====== MODAL ====== */
+.modal-content{
+    border-radius:18px;
+    border:none;
+    box-shadow:0 20px 60px rgba(0,0,0,.2);
 }
-
-/* ----------------- TABLE ----------------- */
-.table {
-    background: #ffffff;
-    border-radius: 16px;
-    overflow: hidden;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+.modal-header{
+    background:#2563eb;
+    color:#fff;
+    border:none;
 }
-
-.table thead th {
-    border: none;
-    font-weight: 600;
-    background: linear-gradient(135deg, #1e3a8a, #3b82f6);
-    color: #fff;
+.modal-body p{
+    margin-bottom:10px;
+    font-size:15px;
 }
-
-.table tbody td {
-    vertical-align: middle;
+.modal-body b{
+    color:#111827;
 }
-
-/* ----------------- BADGES ----------------- */
-.badge {
-    font-weight: 600;
-    padding: 0.5em 0.75em;
-    border-radius: 12px;
-    font-size: 0.9rem;
+.modal-body{
+    background:#ffffff;
 }
-
-.badge.bg-success { background-color: #0ea5e9; }
-.badge.bg-danger { background-color: #ef4444; }
-.badge.bg-warning { background-color: #f59e0b; }
-
-/* ----------------- ACTION BUTTONS ----------------- */
-.btn-sm {
-    border-radius: 8px;
-    font-weight: 600;
-    transition: all 0.3s ease;
-}
-
-.btn-sm:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
-}
-
-.btn-success {
-    background: linear-gradient(135deg, #0ea5e9, #3b82f6);
-    color: #fff;
-}
-.btn-danger {
-    background: linear-gradient(135deg, #ef4444, #f87171);
-    color: #fff;
-}
-
-/* ----------------- MODAL ----------------- */
-.modal-content {
-    border-radius: 16px;
-    box-shadow: 0 12px 35px rgba(0,0,0,0.15);
-    overflow: hidden;
-}
-
-.modal-header {
-    background: linear-gradient(135deg, #1e3a8a, #3b82f6);
-    color: #fff;
-    font-weight: 600;
-}
-
-.modal-body p {
-    margin-bottom: 0.5rem;
-}
-
-/* ----------------- RESPONSIVE ----------------- */
-@media (max-width: 576px) {
-    .stat {
-        font-size: 16px;
-        padding: 18px;
-    }
-}
-
 </style>
 </head>
 
 <body>
 
-<nav class="navbar navbar-dark bg-dark px-4">
-<span class="navbar-brand">🛠 Admin Dashboard</span>
-<a href="logout.php" class="btn btn-outline-light btn-sm">Logout</a>
+<nav class="navbar px-4 py-3 d-flex justify-content-between align-items-center">
+    <span class="navbar-brand fs-5">🛠 Admin Dashboard</span>
+
+    <div class="d-flex gap-2">
+        <a href="staff.php" class="btn btn-primary nav-btn btn-sm">👥 Staff</a>
+        <a href="logout.php" class="btn btn-dark nav-btn btn-sm">Logout</a>
+    </div>
 </nav>
 
 <div class="container my-4">
 
-<!-- STATS -->
-<div class="row g-3 mb-4">
-<div class="col-md-3"><div class="stat total">📄 Total<br><?= $total ?></div></div>
-<div class="col-md-3"><div class="stat approved">✅ Approved<br><?= $approved ?></div></div>
-<div class="col-md-3"><div class="stat rejected">❌ Rejected<br><?= $rejected ?></div></div>
-<div class="col-md-3"><div class="stat pending">⏳ Pending<br><?= $pending ?></div></div>
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="stat total">
+                <small>Total Applications</small>
+                <h3><?= $total ?></h3>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="stat approved">
+                <small>Approved</small>
+                <h3><?= $approved ?></h3>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="stat rejected">
+                <small>Rejected</small>
+                <h3><?= $rejected ?></h3>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="stat pending">
+                <small>Pending</small>
+                <h3><?= $pending ?></h3>
+            </div>
+        </div>
+    </div>
+
+    <input class="form-control mb-3" id="search" placeholder="🔍 Search by name, email, status...">
+
+    <div class="table-wrap">
+        <table class="table table-hover text-center align-middle">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Status</th>
+                    <th>Resume</th>
+                    <th>Changed By</th>
+                    <th>Changed Time</th>
+                    <th style="width:220px;">Action</th>
+                </tr>
+            </thead>
+
+            <tbody id="table">
+            <?php while($r = $result->fetch_assoc()){ ?>
+                <tr>
+                    <td>
+                        <a href="#" data-bs-toggle="modal" data-bs-target="#view<?= $r['id'] ?>"
+                           class="fw-bold text-decoration-none" style="color:#2563eb;">
+                            <?= htmlspecialchars($r['full_name']) ?>
+                        </a>
+                    </td>
+
+                    <td><?= htmlspecialchars($r['email']) ?></td>
+
+                    <td>
+                        <span class="badge <?= $r['status']=='Approved'?'bg-success':($r['status']=='Rejected'?'bg-danger':'bg-warning') ?>">
+                            <?= htmlspecialchars($r['status']) ?>
+                        </span>
+                    </td>
+
+                    <td>
+                        <?php if(!empty($r['resume_path'])){ ?>
+                            <a href="<?= htmlspecialchars($r['resume_path']) ?>" target="_blank" class="fw-semibold text-decoration-none" style="color:#0ea5e9;">
+                                View
+                            </a>
+                        <?php } else { ?>
+                            <span class="text-muted">No Resume</span>
+                        <?php } ?>
+                    </td>
+
+                    <td><?= htmlspecialchars($r['updated_by_staff_name'] ?? "Admin") ?></td>
+                    <td><?= !empty($r['updated_at']) ? htmlspecialchars($r['updated_at']) : "-" ?></td>
+
+                    <td>
+                        <div class="d-flex justify-content-center gap-2 flex-wrap">
+                            <!-- STATUS DROPDOWN -->
+                            <form method="POST">
+                                <input type="hidden" name="id" value="<?= (int)$r['id'] ?>">
+                                <select name="action" class="form-select form-select-sm" onchange="this.form.submit()">
+                                    <option value="Pending" <?= $r['status']=='Pending'?'selected':'' ?>>Pending</option>
+                                    <option value="Approved" <?= $r['status']=='Approved'?'selected':'' ?>>Approved</option>
+                                    <option value="Rejected" <?= $r['status']=='Rejected'?'selected':'' ?>>Rejected</option>
+                                </select>
+                            </form>
+
+                            <!-- DELETE BUTTON -->
+                            <form method="POST" onsubmit="return confirm('Are you sure you want to delete this candidate?')">
+                                <input type="hidden" name="delete_id" value="<?= (int)$r['id'] ?>">
+                                <button class="btn btn-delete btn-sm">Delete</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            <?php } ?>
+            </tbody>
+        </table>
+    </div>
+
 </div>
 
-<input class="form-control mb-3" id="search" placeholder="🔍 Search candidates">
-
-<table class="table table-hover text-center align-middle">
-<thead class="table-dark">
-<tr>
-<th>Name</th>
-<th>Email</th>
-<th>Status</th>
-<th>Resume</th>
-<th>Action</th>
-</tr>
-</thead>
-
-<tbody id="table">
-<?php while($r = $result->fetch_assoc()) { ?>
-<tr>
-<td>
-<a href="#" data-bs-toggle="modal" data-bs-target="#view<?= $r['id'] ?>" class="fw-semibold text-decoration-none">
-<?= $r['full_name'] ?>
-</a>
-</td>
-
-<td><?= $r['email'] ?></td>
-
-<td>
-<span class="badge 
-<?= $r['status']=='Approved'?'bg-success':($r['status']=='Rejected'?'bg-danger':'bg-warning') ?>">
-<?= $r['status'] ?>
-</span>
-</td>
-
-<td>
-<a href="<?= $r['resume_path'] ?>" target="_blank">View</a>
-</td>
-
-<td>
-<form method="POST" class="d-flex gap-1 justify-content-center">
-<input type="hidden" name="id" value="<?= $r['id'] ?>">
-<button name="action" value="Approved" class="btn btn-success btn-sm">Approve</button>
-<button name="action" value="Rejected" class="btn btn-danger btn-sm">Reject</button>
-</form>
-</td>
-</tr>
-
-<!-- VIEW DETAILS MODAL -->
+<!-- MODALS -->
+<?php
+$result2 = $conn->query("SELECT * FROM job_applications ORDER BY id DESC");
+while($r = $result2->fetch_assoc()){
+?>
 <div class="modal fade" id="view<?= $r['id'] ?>" tabindex="-1">
-<div class="modal-dialog modal-lg modal-dialog-centered">
-<div class="modal-content">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold">Candidate Details</h5>
+                <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p><b>Name:</b> <?= htmlspecialchars($r['full_name']) ?></p>
+                <p><b>Email:</b> <?= htmlspecialchars($r['email']) ?></p>
+                <p><b>Mobile:</b> <?= htmlspecialchars($r['mobile'] ?? "-") ?></p>
+                <p><b>Qualification:</b> <?= htmlspecialchars($r['qualification'] ?? "-") ?></p>
+                <p><b>Skills:</b> <?= htmlspecialchars($r['skills'] ?? "-") ?></p>
 
-<div class="modal-header bg-dark text-white">
-<h5 class="modal-title">Candidate Details</h5>
-<button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-</div>
-
-<div class="modal-body">
-<p><strong>Name:</strong> <?= $r['full_name'] ?></p>
-<p><strong>Email:</strong> <?= $r['email'] ?></p>
-<p><strong>Mobile:</strong> <?= $r['mobile'] ?></p>
-<p><strong>Gender:</strong> <?= $r['gender'] ?></p>
-<p><strong>Qualification:</strong> <?= $r['qualification'] ?></p>
-<p><strong>Skills:</strong> <?= $r['skills'] ?></p>
-<p><strong>Status:</strong> <?= $r['status'] ?></p>
-</div>
-
-<div class="modal-footer">
-<a href="<?= $r['resume_path'] ?>" target="_blank" class="btn btn-primary">View Resume</a>
-<button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-</div>
-
-</div>
-</div>
+                <?php if(!empty($r['resume_path'])){ ?>
+                    <p><b>Resume:</b>
+                        <a href="<?= htmlspecialchars($r['resume_path']) ?>" target="_blank" style="color:#2563eb; font-weight:700;">
+                            View Resume
+                        </a>
+                    </p>
+                <?php } ?>
+            </div>
+        </div>
+    </div>
 </div>
 <?php } ?>
-</tbody>
-</table>
-
-</div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 

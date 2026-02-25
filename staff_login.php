@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Login</title>
+<title>Staff Login</title>
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
@@ -181,17 +181,18 @@ h4{
 <div class="glow three"></div>
 
 <div class="login-card">
-    <h4 class="mb-4">🔐 Admin Login</h4>
+    <h4 class="mb-4">🔐 Staff Login</h4>
 
-    <?php if(isset($_SESSION['login_error'])){ ?>
+    <?php if(isset($_SESSION['staff_error'])){ ?>
         <div class="alert alert-danger text-center">
-            <?= $_SESSION['login_error']; unset($_SESSION['login_error']); ?>
+            <?= $_SESSION['staff_error']; unset($_SESSION['staff_error']); ?>
         </div>
     <?php } ?>
 
-    <form method="POST" action="admin_auth.php">
+    <form method="POST" action="staff_auth.php">
         <input class="form-control mb-3" name="username" placeholder="Username" required>
         <input class="form-control mb-3" type="password" name="password" placeholder="Password" required>
+
         <button class="btn btn-login text-white w-100">Login</button>
     </form>
 </div>

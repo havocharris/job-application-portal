@@ -1,255 +1,279 @@
-/* ----------------- GLOBAL ----------------- */
-body {
-    margin: 0;
-    min-height: 100vh;
-    background: #f4f6f8; /* soft light gray */
-    font-family: "Segoe UI", Arial, sans-serif;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
+/* ====== BASIC RESET ====== */
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
 }
 
-/* ----------------- BANNER ----------------- */
-.banner {
-    width: 100%;
-    padding: 60px 20px;
-    text-align: center;
-    color: #ffffff;
-    background: linear-gradient(135deg, #667eea, #764ba2); /* simple gradient */
-    margin-bottom: 50px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
-    border-bottom-left-radius: 20px;
-    border-bottom-right-radius: 20px;
+body{
+  min-height:100vh;
+  font-family:Poppins, Arial, sans-serif;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+  overflow-x:hidden;
+  position:relative;
+
+  /* animated gradient background */
+  background:linear-gradient(-45deg,#92a5f8,#764ba2,#4facfe,#00f2fe);
+  background-size:400% 400%;
+  animation:bgMove 10s ease infinite;
 }
 
-
-.banner h1 {
-    font-size: 40px;
-    font-weight: 800;
-    margin-bottom: 10px;
+@keyframes bgMove{
+  0%{background-position:0% 50%;}
+  50%{background-position:100% 50%;}
+  100%{background-position:0% 50%;}
 }
 
-.banner p {
-    font-size: 18px;
-    opacity: 0.95;
+/* ====== GLOW CIRCLES ====== */
+body::before,
+body::after{
+  content:"";
+  position:absolute;
+  width:280px;
+  height:280px;
+  border-radius:50%;
+  filter:blur(60px);
+  opacity:.55;
+  z-index:0;
+  animation:float 6s ease-in-out infinite;
 }
 
-/* ----------------- FORM WRAPPER ----------------- */
-#formPage {
-    width: 100%;
-    max-width: 900px;
-    padding: 0 15px 80px;
+body::before{
+  background:#ff6ec4;
+  top:10%;
+  left:10%;
 }
 
-/* ----------------- FORM CARD ----------------- */
-.form-box {
-    margin: 0 auto;
-    padding: 45px;
-    background: linear-gradient(135deg, #9eeaf1, #67d5e6); /* gradient cyan shades */
-    border-radius: 18px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); /* subtle shadow */
-    color: #1e1e1e;
-    border: 2px solid #b6afff;
-    transition: all 0.4s ease;
+body::after{
+  background:#6a11cb;
+  bottom:10%;
+  right:10%;
+  animation-delay:1s;
 }
 
-
-
-/* Hover effect */
-.form-box:hover {
-    transform: translateY(-3px);
-    box-shadow: 20px 20px 45px rgba(0,0,0,0.15);
+@keyframes float{
+  0%,100%{transform:translateY(0) scale(1);}
+  50%{transform:translateY(-25px) scale(1.05);}
 }
 
-/* ----------------- STEPS ----------------- */
-.step {
-    display: none;
-    animation: fadeIn 0.5s ease forwards;
-}
-.step.active {
-    display: block;
-}
-.step:first-child .prev-btn {
-    display: none;
+/* ====== BANNER ====== */
+.banner{
+  width:100%;
+  padding:65px 20px;
+  text-align:center;
+  color:#fff;
+  position:relative;
+  z-index:2;
+
+  background:rgba(255,255,255,0.12);
+  backdrop-filter:blur(18px);
+  border-bottom-left-radius:24px;
+  border-bottom-right-radius:24px;
+  box-shadow:0 18px 40px rgba(0,0,0,0.25);
 }
 
-/* ----------------- TITLES ----------------- */
-#stepTitle {
-    font-weight: 800;
-    font-size: 28px;
-    text-align: center;
-    margin-bottom: 25px;
-    color: #2c3e50; /* dark blue accent */
+.banner h1{
+  font-size:42px;
+  font-weight:800;
+  margin-bottom:10px;
 }
 
-h5 {
-    color: #34495e; /* subtle dark gray-blue */
-    font-weight: 700;
-    margin-bottom: 1.5rem;
+.banner p{
+  font-size:18px;
+  opacity:.95;
 }
 
-/* ----------------- PROGRESS ----------------- */
-.progress {
-    height: 12px;
-    background: #e0e0e0;
-    border-radius: 50px;
-    margin-bottom: 35px;
-    overflow: hidden;
+/* ====== PAGE WRAPPER ====== */
+#formPage{
+  width:100%;
+  max-width:950px;
+  padding:0 15px 90px;
+  position:relative;
+  z-index:2;
 }
 
-.progress-bar {
-    background: linear-gradient(
-        90deg,
-        #4a69bd,
-        #6a89cc
-    );
-    transition: width 0.5s ease-in-out;
+/* ====== FORM CARD ====== */
+.form-box{
+  margin:0 auto;
+  padding:45px;
+  border-radius:22px;
+  position:relative;
+
+  background:rgba(255,255,255,0.92);
+  backdrop-filter:blur(18px);
+
+  border:1px solid rgba(255,255,255,0.4);
+  box-shadow:0 25px 60px rgba(0,0,0,0.35);
+  transition:.3s;
 }
 
-/* ----------------- LABELS ----------------- */
-.form-label {
-    font-weight: 600;
-    color: #2c3e50; /* dark blue-gray */
-    margin-bottom: 6px;
+/* glowing border */
+.form-box::before{
+  content:"";
+  position:absolute;
+  inset:-2px;
+  border-radius:24px;
+  background:linear-gradient(90deg,#00f2fe,#764ba2,#ff6ec4);
+  z-index:-1;
+  filter:blur(12px);
+  opacity:.65;
+  animation:glow 3s linear infinite;
 }
 
-/* ----------------- INPUTS & SELECT ----------------- */
+@keyframes glow{
+  0%{filter:blur(12px) hue-rotate(0deg);}
+  100%{filter:blur(12px) hue-rotate(360deg);}
+}
+
+.form-box:hover{
+  transform:translateY(-4px);
+  box-shadow:0 30px 70px rgba(0,0,0,0.35);
+}
+
+/* ====== TITLES ====== */
+#stepTitle{
+  font-size:28px;
+  font-weight:800;
+  text-align:center;
+  margin-bottom:25px;
+  color:#2c3e50;
+}
+
+h5{
+  font-weight:700;
+  margin-bottom:1.5rem;
+  color:#34495e;
+}
+
+/* ====== STEPS ====== */
+.step{display:none;}
+.step.active{display:block;}
+
+/* ====== PROGRESS ====== */
+.progress{
+  height:12px;
+  background:rgba(0,0,0,0.08);
+  border-radius:50px;
+  overflow:hidden;
+  margin-bottom:35px;
+}
+
+.progress-bar{
+  background:linear-gradient(90deg,#4facfe,#764ba2);
+  transition:width .5s;
+}
+
+/* ====== INPUTS ====== */
+.form-label{
+  font-weight:600;
+  color:#2c3e50;
+  margin-bottom:6px;
+}
+
 .form-control,
 .form-select,
-textarea {
-    background-color: #f7f9fc; /* very light blue-gray */
-    color: #1e1e1e;
-    border: 1px solid #85bcff;
-    border-radius: 12px;
-    padding: 0.5rem 1rem;
-    font-size: 15px;
-    transition: all 0.3s ease;
-}
-
-.form-control::placeholder,
-textarea::placeholder {
-    color: #667171; /* muted gray */
+textarea{
+  background:rgba(255,255,255,0.9);
+  border:1px solid rgba(102,126,234,0.35);
+  border-radius:14px;
+  padding:.6rem 1rem;
+  font-size:15px;
+  transition:.3s;
 }
 
 .form-control:focus,
 .form-select:focus,
-textarea:focus {
-    border-color: #4a69bd; /* subtle blue accent */
-    box-shadow: 0 0 8px rgba(74,105,189,0.25); /* subtle glow */
-    outline: none;
+textarea:focus{
+  border-color:#667eea;
+  box-shadow:0 0 0 4px rgba(102,126,234,0.25);
+  outline:none;
 }
 
-/* ----------------- SELECT OPTIONS ----------------- */
-.form-select {
-    appearance: none;
-    cursor: pointer;
+/* ====== BUTTONS ====== */
+.btn{
+  border-radius:14px;
+  padding:12px 28px;
+  font-weight:700;
+  transition:.3s;
 }
 
-.form-select option {
-    background-color: #ffffff !important;
-    color: #1e1e1e !important;
-    font-weight: 500;
+.btn-primary{
+  background:linear-gradient(135deg,#667eea,#764ba2);
+  border:none;
+  color:#fff;
 }
 
-.form-select option:checked {
-    background-color: #dbe9fb !important; /* light blue highlight */
-    color: #1e1e1e !important;
+.btn-primary:hover{
+  transform:translateY(-3px);
+  box-shadow:0 15px 35px rgba(102,126,234,0.45);
 }
 
-/* ----------------- INVALID ----------------- */
-.is-invalid {
-    border-color: #e74c3c !important;
-    background-color: rgba(231, 76, 60, 0.15);
+.btn-secondary{
+  background:rgba(0,0,0,0.35);
+  border:none;
+  color:#fff;
 }
 
-/* ----------------- BUTTONS ----------------- */
-.btn {
-    border-radius: 12px;
-    padding: 12px 28px;
-    font-weight: 700;
-    transition: all 0.3s ease;
+.btn-success{
+  background:linear-gradient(135deg,#27ae60,#2ecc71);
+  border:none;
+  color:#fff;
 }
 
-.btn-primary {
-    background: linear-gradient(135deg, #4a69bd, #6a89cc);
-    border: none;
-    color: #fff;
+/* ====== CHECKBOX / RADIO ====== */
+.form-check-input{
+  accent-color:#667eea;
+  width:20px;
+  height:20px;
 }
 
-.btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(74,105,189,0.35);
+/* Step 3 radio fix */
+.step input[type="radio"]{
+  accent-color:#667eea;
+  transform:scale(1.05);
+  margin-right:6px;
 }
 
-.btn-secondary {
-    background: #95a5a6; /* muted gray */
-    color: #fff;
+/* ====== LOADER ====== */
+#loaderOverlay{
+  position:fixed;
+  inset:0;
+  background:rgba(15,23,42,0.85);
+  backdrop-filter:blur(10px);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+  opacity:0;
+  visibility:hidden;
+  transition:.3s;
 }
 
-.btn-success {
-    background: linear-gradient(135deg, #27ae60, #2ecc71);
-    color: #fff;
+#loaderOverlay.active{
+  opacity:1;
+  visibility:visible;
 }
 
-/* ----------------- RADIO & CHECKBOX ----------------- */
-.form-check-input {
-    accent-color: #4a69bd; /* subtle colored checkboxes */
-    width: 20px;
-    height: 20px;
+.loader{
+  width:60px;
+  height:60px;
+  border:5px solid rgba(255,255,255,0.25);
+  border-top-color:#00f2fe;
+  border-radius:50%;
+  animation:spin 1s linear infinite;
+  margin-bottom:15px;
 }
 
-/* ----------------- RESPONSIVE ----------------- */
-@media (max-width: 576px) {
-    .form-box {
-        padding: 30px 20px;
-    }
-    .banner h1 {
-        font-size: 32px;
-    }
+@keyframes spin{
+  to{transform:rotate(360deg);}
 }
 
-/* ----------------- ANIMATION ----------------- */
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(15px); }
-    to { opacity: 1; transform: translateY(0); }
+/* ====== MOBILE ====== */
+@media(max-width:576px){
+  .form-box{padding:30px 20px;}
+  .banner h1{font-size:32px;}
 }
-
-/* ----------------- LOADER ----------------- */
-#loaderOverlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(15, 23, 42, 0.85);
-    backdrop-filter: blur(8px);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s ease;
-}
-
-#loaderOverlay.active {
-    opacity: 1;
-    visibility: visible;
-}
-
-.loader {
-    width: 60px;
-    height: 60px;
-    border: 5px solid rgba(255,255,255,0.25);
-    border-top-color: #4a69bd; /* loader matches primary color */
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin-bottom: 15px;
-}
-
-#loaderOverlay p {
-    color: #fff;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-}
-
-@keyframes spin { to { transform: rotate(360deg); } }

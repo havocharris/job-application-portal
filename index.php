@@ -9,13 +9,14 @@
     <link rel="stylesheet" href="style.css">
 </head>
 
-<!-- Loader -->
+
+
+<body>
+    <!-- Loader -->
 <div id="loaderOverlay">
     <div class="loader"></div>
     <p>Submitting your application...</p>
 </div>
-
-<body>
 
 <div class="banner text-center py-5">
     <h1>Job Application Form</h1>

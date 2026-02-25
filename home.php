@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Login</title>
+<title>Job Portal</title>
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
@@ -21,7 +21,7 @@ body{
     overflow:hidden;
     position:relative;
 
-    /* animated background */
+    /* animated gradient */
     background:linear-gradient(-45deg, #92a5f8, #764ba2, #4facfe, #00f2fe);
     background-size:400% 400%;
     animation:bgMove 10s ease infinite;
@@ -34,7 +34,7 @@ body{
     100%{background-position:0% 50%;}
 }
 
-/* glow bubbles */
+/* glowing bubbles */
 .glow{
     position:absolute;
     border-radius:50%;
@@ -45,7 +45,7 @@ body{
 }
 
 .glow.one{
-    width:240px;height:240px;
+    width:250px;height:250px;
     background:#ff6ec4;
     top:10%;left:10%;
 }
@@ -69,15 +69,15 @@ body{
     50%{transform:translateY(-25px) scale(1.05);}
 }
 
-/* login card */
-.login-card{
-    width:400px;
-    padding:35px;
+/* main card */
+.card-box{
     background:rgba(255,255,255,0.92);
     backdrop-filter:blur(18px);
+    padding:45px;
     border-radius:22px;
-    box-shadow: 0 25px 60px rgba(0,0,0,0.35);
+    width:440px;
     text-align:center;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.35);
     position:relative;
     z-index:2;
 
@@ -89,8 +89,55 @@ body{
     to{opacity:1;transform:translateY(0px) scale(1);}
 }
 
-/* glowing border */
-.login-card::before{
+h2{
+    font-weight:600;
+    font-size:26px;
+    margin-bottom:10px;
+}
+
+p{
+    font-size:15px;
+}
+
+/* button style */
+.btn-main{
+    height:58px;
+    font-size:18px;
+    border-radius:16px;
+    font-weight:600;
+    transition:all 0.35s ease;
+    position:relative;
+    overflow:hidden;
+}
+
+/* hover effects */
+.btn-main:hover{
+    transform:translateY(-4px);
+    box-shadow:0 12px 30px rgba(0,0,0,0.25);
+}
+
+/* ripple effect */
+.btn-main::after{
+    content:"";
+    position:absolute;
+    top:50%;
+    left:50%;
+    width:0;
+    height:0;
+    background:rgba(255,255,255,0.4);
+    border-radius:50%;
+    transform:translate(-50%,-50%);
+    transition:0.6s;
+}
+
+.btn-main:active::after{
+    width:250px;
+    height:250px;
+    opacity:0;
+}
+
+/* auto glow border */
+.card-box::before{
     content:"";
     position:absolute;
     inset:-2px;
@@ -107,67 +154,13 @@ body{
     100%{filter:blur(12px) hue-rotate(360deg);}
 }
 
-/* inputs */
-.form-control{
-    height:50px;
-    border-radius:14px;
-    border:1px solid rgba(0,0,0,0.12);
-    transition:0.3s ease;
+/* small fade-in for buttons */
+.btn-main{
+    animation:btnFade 1.1s ease;
 }
 
-.form-control:focus{
-    border-color:#667eea;
-    box-shadow:0 0 0 4px rgba(102,126,234,0.25);
-}
-
-/* login button */
-.btn-login{
-    height:52px;
-    border-radius:16px;
-    font-size:18px;
-    font-weight:600;
-    border:none;
-    background:linear-gradient(135deg,#667eea,#764ba2);
-    transition:all 0.35s ease;
-    position:relative;
-    overflow:hidden;
-}
-
-/* hover effect */
-.btn-login:hover{
-    transform:translateY(-4px);
-    box-shadow:0 15px 35px rgba(102,126,234,0.5);
-}
-
-/* ripple effect */
-.btn-login::after{
-    content:"";
-    position:absolute;
-    top:50%;
-    left:50%;
-    width:0;
-    height:0;
-    background:rgba(255,255,255,0.4);
-    border-radius:50%;
-    transform:translate(-50%,-50%);
-    transition:0.6s;
-}
-
-.btn-login:active::after{
-    width:250px;
-    height:250px;
-    opacity:0;
-}
-
-/* title animation */
-h4{
-    font-weight:600;
-    font-size:24px;
-    animation:fadeText 1s ease;
-}
-
-@keyframes fadeText{
-    from{opacity:0;transform:translateY(-10px);}
+@keyframes btnFade{
+    from{opacity:0;transform:translateY(15px);}
     to{opacity:1;transform:translateY(0px);}
 }
 </style>
@@ -175,25 +168,26 @@ h4{
 
 <body>
 
-<!-- background glow effects -->
+<!-- Background glow effects -->
 <div class="glow one"></div>
 <div class="glow two"></div>
 <div class="glow three"></div>
 
-<div class="login-card">
-    <h4 class="mb-4">🔐 Admin Login</h4>
+<div class="card-box">
+    <h2>💼 Job Application Portal</h2>
+    <p class="text-muted mb-4">Choose how you want to continue</p>
 
-    <?php if(isset($_SESSION['login_error'])){ ?>
-        <div class="alert alert-danger text-center">
-            <?= $_SESSION['login_error']; unset($_SESSION['login_error']); ?>
-        </div>
-    <?php } ?>
+    <a href="index.php" class="btn btn-primary btn-main w-100 mb-3">
+        👤 Apply for Job
+    </a>
 
-    <form method="POST" action="admin_auth.php">
-        <input class="form-control mb-3" name="username" placeholder="Username" required>
-        <input class="form-control mb-3" type="password" name="password" placeholder="Password" required>
-        <button class="btn btn-login text-white w-100">Login</button>
-    </form>
+    <a href="admin_login.php" class="btn btn-dark btn-main w-100 mb-3">
+        🔐 Admin Login
+    </a>
+
+    <a href="staff_login.php" class="btn btn-success btn-main w-100">
+        🧑‍💼 Staff Login
+    </a>
 </div>
 
 </body>
